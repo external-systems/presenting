@@ -9,6 +9,7 @@ nav:
   - Getting started: getting-started.md
   - MkDocs basics: mkdocs.md
   - reveal.js basics: reveal-js.md
+  - Presentation: presentation.md
   - How the Nix flake works: nix.md
 
 # Material for MkDocs — the theme. Options:

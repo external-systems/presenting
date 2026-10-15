@@ -27,6 +27,7 @@ the browser.
 ```text
 flake.nix          inputs (nixpkgs, flake-parts, mkdocs-flake, reveal.js), locked in flake.lock
 flake-parts/       flake modules, auto-imported: docs settings, slides build, checks
+.github/workflows/ pages.yml: check, build and deploy the docs site to GitHub Pages
 documentation/     MkDocs site: mkdocs.yml + docs/*.md
 slides/            reveal.js deck: index.html + slides.md
 ```

@@ -77,10 +77,16 @@ nix fmt .           # format the .nix files
 nix flake check     # builds both sites and lints the Nix code
 ```
 
-## 6. Publish (example: GitHub Pages)
+## 6. Publish to GitHub Pages
 
-Any host that serves a folder works. For GitHub Pages, a workflow can run
-`nix build .#documentation`, copy `result/` and upload it with
-[`actions/upload-pages-artifact`](https://github.com/actions/upload-pages-artifact).
-Put the slides in a subfolder of the same upload if you want both on one
-site, for example `cp -rL result-1/. public/slides/`.
+The repo ships `.github/workflows/pages.yml`. On every push to `main` it
+runs `nix flake check`, builds the docs site (slides included under
+`/slides/`) and deploys it to GitHub Pages. Pull requests run the same
+checks and build without deploying.
+
+Turn it on once per repo: **Settings → Pages → Build and deployment →
+Source: GitHub Actions**. The site then appears at
+`https://<owner>.github.io/<repo>/`.
+
+Any other static host works the same way: upload the contents of the
+`nix build .#documentation` result.

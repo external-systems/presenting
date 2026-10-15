@@ -11,6 +11,8 @@ flake.lock             # exact versions of every input (generated, commit it)
 flake-parts/
 ├── default.nix        # formatter + MkDocs settings
 ├── slides.nix         # the reveal.js build and the serve-slides app
+├── scripts/
+│   └── inline-markdown.py  # folds slides.md into index.html at build time
 ├── checks.nix         # `nix flake check`: both builds + the Nix linters
 └── template.nix       # lets `nix flake init -t` copy this repo (delete it in your copy if you like)
 documentation/         # the MkDocs site
@@ -63,7 +65,7 @@ module sets options inside `perSystem`, for example `packages.slides` or
 
 | Command | Output |
 | --- | --- |
-| `nix build .#documentation` | the docs website (from mkdocs-flake) |
+| `nix build .#documentation` | the docs website, with the deck at `/slides/` |
 | `nix build .#slides` | the slide deck |
 | `nix run .#watch-documentation` | live docs preview |
 | `nix run .#serve-slides` | live slides preview |

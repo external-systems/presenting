@@ -12,12 +12,12 @@ slides/
 └── slides.md    # the slides themselves, in Markdown
 ```
 
-When you build, Nix copies `slides/` and adds reveal.js under `reveal/`:
+When you build, Nix copies `slides/`, folds `slides.md` into
+`index.html`, and adds reveal.js under `reveal/`:
 
 ```text
 result/
-├── index.html
-├── slides.md
+├── index.html   # with slides.md inlined
 └── reveal/      # reveal.js' prebuilt dist/: reveal.js, reveal.css, theme/, plugin/
 ```
 
@@ -106,7 +106,17 @@ at the bottom of `index.html`. See the
 `index.html` loads `slides.md` with a web request, and browsers block those
 requests from pages opened straight from disk (`file://`). That is why the
 repo has `nix run .#serve-slides` instead of "double-click index.html".
-Hosted on any web server, the built deck works as-is.
+
+The **built** deck does not have this problem: `nix build .#slides` copies
+the Markdown into `index.html` itself (a `<textarea data-template>` block,
+done by `flake-parts/scripts/inline-markdown.py`), so `result/index.html`
+opens straight from disk and works on any host.
+
+## The deck inside the docs site
+
+`nix build .#documentation` also puts the built deck at `/slides/` of the
+website, and the [Presentation](presentation.md) page embeds it with an
+`<iframe>`. Anything you change in `slides/` shows up in both.
 
 ## More than one deck
 
