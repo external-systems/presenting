@@ -1,5 +1,9 @@
 {
-  perSystem = {pkgs, ...}: {
+  perSystem = {
+    pkgs,
+    config,
+    ...
+  }: {
     # Formatter: `nix fmt .`
     formatter = pkgs.alejandra;
 
@@ -10,6 +14,11 @@
       mkdocs-root = ../documentation;
       # Broken links / missing nav pages fail the build instead of warning.
       strict = true;
+      # Ship the built slide deck inside the website at /slides/
+      # (embedded by docs/presentation.md). Runs in the build directory,
+      # where docs/ is a symlink copy of documentation/docs (read-only
+      # directories, hence the chmod).
+      mkdocs-preBuildHook = "chmod u+w docs && cp -r ${config.packages.slides} docs/slides";
     };
   };
 }

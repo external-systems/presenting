@@ -9,9 +9,13 @@
   in {
     # nix build .#slides → ./result is the static slide deck: the files in
     # slides/ plus reveal.js under reveal/ (index.html links reveal/...).
-    packages.slides = pkgs.runCommand "slides" {} ''
-      mkdir -p $out
-      cp -r ${../slides}/. $out/
+    # Each `data-markdown="x.md"` deck gets its Markdown inlined into the
+    # .html (scripts/inline-markdown.py), so the built deck opens straight
+    # from disk and nests cleanly inside the MkDocs site (default.nix).
+    packages.slides = pkgs.runCommand "slides" {nativeBuildInputs = [pkgs.python3];} ''
+      cp -r ${../slides} $out
+      chmod -R u+w $out
+      python3 ${./scripts/inline-markdown.py} $out
       cp -r ${reveal} $out/reveal
     '';
 
