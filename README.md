@@ -34,9 +34,13 @@ the browser.
 ```nix
 inputs.presenting = {
   url = "github:external-systems/presenting";
-  # Reuse your own pins instead of this repo's (recommended):
-  inputs.nixpkgs.follows = "nixpkgs";
-  inputs.flake-parts.follows = "flake-parts";
+  # Reuse your own pins instead of this repo's (recommended). Nested
+  # `inputs = {...}`: three flat `inputs.<x>.follows` lines trip statix's
+  # repeated-keys lint (W20).
+  inputs = {
+    nixpkgs.follows = "nixpkgs";
+    flake-parts.follows = "flake-parts";
+  };
 };
 ```
 
