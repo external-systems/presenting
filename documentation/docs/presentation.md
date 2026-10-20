@@ -14,9 +14,11 @@ arrow keys, or <a href="../slides/index.html" target="_blank">open it on its own
 
 !!! info "How the deck gets here"
     `nix build .#documentation` builds the deck (`nix build .#slides`)
-    first and copies it into the site at `/slides/` before MkDocs runs
-    (`mkdocs-preBuildHook` in `flake-parts/default.nix`). The deck still
-    builds and works on its own, too.
+    first and copies it into the site at `/slides/` before MkDocs runs —
+    the `mkdocs-preBuildHook` the slides module sets for you
+    (`flakeModules/slides.nix`; this repo just says
+    `presenting.slides.dir = ./slides`). The deck still builds and works
+    on its own, too.
 
     The live preview (`nix run .#watch-documentation`) serves only
     `documentation/`, so the frame above is empty there. Preview the deck

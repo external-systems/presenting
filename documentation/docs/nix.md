@@ -6,11 +6,14 @@ you want to change how it builds.
 ## The files
 
 ```text
-flake.nix              # inputs (outside dependencies) + the list of modules
+flake.nix              # inputs (outside dependencies) + the exported lib/modules
 flake.lock             # exact versions of every input (generated, commit it)
+lib/
+└── default.nix        # mkSlides: the deck builder other flakes call with THEIR slides/
+flakeModules/
+└── slides.nix         # the exportable flake-parts module (presenting.slides.* options)
 flake-parts/
-├── default.nix        # formatter + MkDocs settings
-├── slides.nix         # the reveal.js build and the serve-slides app
+├── default.nix        # formatter + MkDocs settings + presenting.slides.dir
 ├── scripts/
 │   └── inline-markdown.py  # folds slides.md into index.html at build time
 ├── checks.nix         # `nix flake check`: both builds + the Nix linters
@@ -18,6 +21,10 @@ flake-parts/
 documentation/         # the MkDocs site
 slides/                # the reveal.js deck
 ```
+
+This repo builds its own deck with the same module it exports — what you
+get from `inputs.presenting.flakeModules.slides` is exactly what builds
+`slides/` here.
 
 ## Inputs and the lock file
 
@@ -73,6 +80,22 @@ module sets options inside `perSystem`, for example `packages.slides` or
 | `nix flake check` | build both sites + lint the Nix code |
 | `nix develop` | a shell with the linters (alejandra, statix, deadnix) |
 | `nix flake show` | list all of the above |
+
+## Exports
+
+Other flakes consume this repo as an input instead of copying it:
+
+| Export | What a consumer gets |
+| --- | --- |
+| `lib.mkSlides` | build a deck from any `slides/` dir (`{ pkgs, slidesDir, ... }` → `{ package, serveApp }`) |
+| `flakeModules.slides` | `packages.slides` + `apps.serve-slides`, plus the `/slides/` embed when mkdocs-flake is imported |
+| `flakeModules.default` | the above **and** mkdocs-flake, in one import |
+| `templates.default` | this whole repo (`nix flake init -t`) |
+
+The reveal.js pin travels inside these exports (they are bound to this
+flake's `inputs` in `flake.nix`), so consumers never add a reveal-js
+input or copy the build. Consumer config is one line:
+`presenting.slides.dir = ./slides;`.
 
 ## Other systems
 

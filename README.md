@@ -1,8 +1,13 @@
 # presenting
 
-reveal.js + MkDocs flake template. Start a new project from it with
-`nix flake init -t github:external-systems/presenting` (or GitHub's
-"Use this template" button).
+reveal.js + MkDocs, built by a Nix flake. Two ways to use it:
+
+- **Start a new project** from the template:
+  `nix flake init -t github:external-systems/presenting` (or GitHub's
+  "Use this template" button).
+- **Add docs + slides to an existing flake** by consuming this repo as an
+  input — no boilerplate copied, the reveal.js pin and the deck build
+  travel inside the input (see below).
 
 A static documentation website ([MkDocs](https://www.mkdocs.org) +
 [Material](https://squidfunk.github.io/mkdocs-material/)) and a slide deck
@@ -24,9 +29,42 @@ The docs site this repo builds is also its tutorial: start with
 `documentation/docs/getting-started.md`, or run the preview and read it in
 the browser.
 
+## Consume from your flake
+
+```nix
+inputs.presenting = {
+  url = "github:external-systems/presenting";
+  # Reuse your own pins instead of this repo's (recommended):
+  inputs.nixpkgs.follows = "nixpkgs";
+  inputs.flake-parts.follows = "flake-parts";
+};
+```
+
+Then, in your flake-parts `imports`:
+
+- `inputs.presenting.flakeModules.default` — docs **and** slides (pulls
+  in mkdocs-flake for you), or
+- `inputs.presenting.flakeModules.slides` — slides only; use this one if
+  your flake already imports mkdocs-flake itself (importing both declares
+  its options twice).
+
+One line of config builds the deck and embeds it in the docs site at
+`/slides/`:
+
+```nix
+presenting.slides.dir = ./slides;   # your index.html + slides.md
+```
+
+You get `packages.slides`, `apps.serve-slides` and — when mkdocs-flake is
+present — the embed via `documentation.mkdocs-preBuildHook`
+(`presenting.slides.embedInDocs = false;` opts out). For full control,
+call the builder directly: `inputs.presenting.lib.mkSlides { inherit pkgs; slidesDir = ./slides; }`.
+
 ```text
-flake.nix          inputs (nixpkgs, flake-parts, mkdocs-flake, reveal.js), locked in flake.lock
-flake-parts/       flake modules, auto-imported: docs settings, slides build, checks
+flake.nix          inputs + exports (lib, flakeModules, template), locked in flake.lock
+lib/               mkSlides: the root-agnostic deck builder other flakes reuse
+flakeModules/      the exportable flake-parts module (presenting.slides.* options)
+flake-parts/       this repo's own config, auto-imported: docs settings, checks
 .github/workflows/ pages.yml: check, build and deploy the docs site to GitHub Pages
 documentation/     MkDocs site: mkdocs.yml + docs/*.md
 slides/            reveal.js deck: index.html + slides.md
