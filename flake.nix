@@ -36,7 +36,17 @@
     };
   };
 
-  outputs = inputs:
+  outputs = inputs: let
+    # The exportable pieces, bound to THIS flake's inputs (so the
+    # reveal.js pin travels with them) and shared by this repo and its
+    # consumers — one implementation, three ways in:
+    #   lib.mkSlides         build a deck from any slides/ directory
+    #   flakeModules.slides  packages.slides + apps.serve-slides
+    #                        (+ /slides/ embed when mkdocs-flake is present)
+    #   templates.default    this whole repo, for greenfield projects
+    presentingLib = import ./lib {inherit inputs;};
+    slidesModule = import ./flakeModules/slides.nix {inherit presentingLib;};
+  in
     inputs.flake-parts.lib.mkFlake {inherit inputs;} {
       # Add "aarch64-linux" / "aarch64-darwin" here to build on those too.
       systems = [
@@ -48,6 +58,26 @@
         # loaded automatically — no import list to keep in sync.
         (inputs.import-tree ./flake-parts)
         inputs.mkdocs-flake.flakeModules.default
+        # This repo eats its own cooking: its deck is built by the same
+        # exported module consumers import.
+        slidesModule
       ];
+
+      flake = {
+        lib = presentingLib;
+        flakeModules = {
+          slides = slidesModule;
+          # `default` additionally pulls in mkdocs-flake, so one import
+          # gives a fresh flake docs + slides. If your flake already
+          # imports mkdocs-flake itself, import `flakeModules.slides`
+          # instead — importing both declares its options twice.
+          default = {
+            imports = [
+              inputs.mkdocs-flake.flakeModules.default
+              slidesModule
+            ];
+          };
+        };
+      };
     };
 }
