@@ -1,14 +1,14 @@
 # Presentation
 
-The slide deck from `slides/`, embedded in this site. Click it and use the
-arrow keys, or <a href="../slides/index.html" target="_blank">open it on its own</a>.
+The slide deck from `documentation/slides/`, embedded in this site. Click it and use the
+arrow keys, or <a href="slides/index.html" target="_blank">open it on its own</a>.
 
 <!-- Plain HTML links on purpose: MkDocs checks Markdown links against
      documentation/docs/, where the deck only exists during
      `nix build .#documentation`, and strict mode would fail the live
      preview. URLs are relative to this page's URL, /presentation/. -->
 
-<iframe src="../slides/index.html" title="Slide deck"
+<iframe src="slides/index.html" title="Slide deck"
   style="width: 100%; aspect-ratio: 16 / 9; border: 0;"
   allowfullscreen></iframe>
 

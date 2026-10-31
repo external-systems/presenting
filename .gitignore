@@ -2,5 +2,9 @@
 result
 result-*
 
+# devenv
+.devenv*
+devenv.local.nix
+
 # `mkdocs build` output, if you ever run mkdocs outside Nix
 documentation/site/

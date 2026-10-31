@@ -12,15 +12,17 @@ reveal.js + MkDocs, built by a Nix flake. Two ways to use it:
 A static documentation website ([MkDocs](https://www.mkdocs.org) +
 [Material](https://squidfunk.github.io/mkdocs-material/)) and a slide deck
 ([reveal.js](https://revealjs.com)), both built by a Nix flake. No Python,
-Node or npm to install, only Nix.
+Node or npm to install, only Nix (and devenv for the dev shell).
 
 ```bash
-nix run .#watch-documentation   # live docs preview   → http://127.0.0.1:8000
-nix run .#serve-slides          # live slides preview → http://127.0.0.1:8000
+devenv allow                    # auto-activates the shell on cd (after `devenv hook`)
+fmt                             # nix fmt: treefmt with the org linters
+check                           # nix flake check: lint, lock sync, both builds
+docs-build                      # static docs to ./result-docs; open index.html from disk
+devenv up                       # live docs on :8981 and slides on :8982
 
 nix build .#documentation       # ./result = docs website
 nix build .#slides              # ./result = slide deck
-nix flake check                 # build both + lint the Nix code
 ```
 
 Remember to `git add` new files: Nix only sees files git tracks.
@@ -65,11 +67,16 @@ present — the embed via `documentation.mkdocs-preBuildHook`
 call the builder directly: `inputs.presenting.lib.mkSlides { inherit pkgs; slidesDir = ./slides; }`.
 
 ```text
-flake.nix          inputs + exports (lib, flakeModules, template), locked in flake.lock
+flake.nix          inputs (follow external-systems/pkgs) + exports (lib, flakeModules, template)
 lib/               mkSlides: the root-agnostic deck builder other flakes reuse
 flakeModules/      the exportable flake-parts module (presenting.slides.* options)
-flake-parts/       this repo's own config, auto-imported: docs settings, checks
+flake-parts/       consumer-facing modules, auto-imported: the template output
+dev/               dev partition: inputs (dev/flake.lock), formatter, checks, docs
+devenv.yaml        dev shell (devenv CLI), the org shell from external-systems/pkgs
+documentation/     flake-module.nix + MkDocs site (mkdocs.yml, docs/) + slides/ deck
 .github/workflows/ pages.yml: check, build and deploy the docs site to GitHub Pages
-documentation/     MkDocs site: mkdocs.yml + docs/*.md
-slides/            reveal.js deck: index.html + slides.md
+.vscode/           nixd (Nix language server) settings
 ```
+
+The repo follows the org flake standard (nix-style skill): after
+`nix flake update org-pkgs`, run `sync-locks` in the same commit.
