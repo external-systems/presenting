@@ -36,10 +36,12 @@ the browser.
 ```nix
 inputs.presenting = {
   url = "github:external-systems/presenting";
-  # Reuse your own pins instead of this repo's (recommended). Nested
-  # `inputs = {...}`: three flat `inputs.<x>.follows` lines trip statix's
-  # repeated-keys lint (W20).
-  inputs = {
+  # Reuse your own pins instead of this repo's (recommended). nixpkgs
+  # and flake-parts come from the org-pkgs input, so pin them there; a
+  # flake that has org-pkgs itself writes `inputs.org-pkgs.follows =
+  # "org-pkgs";` instead. Nested `inputs = {...}`: three flat
+  # `inputs.<x>.follows` lines trip statix's repeated-keys lint (W20).
+  inputs.org-pkgs.inputs = {
     nixpkgs.follows = "nixpkgs";
     flake-parts.follows = "flake-parts";
   };
