@@ -13,18 +13,24 @@ lib/
 flakeModules/
 └── slides.nix         # the exportable flake-parts module (presenting.slides.* options)
 flake-parts/
-├── default.nix        # formatter + MkDocs settings + presenting.slides.dir
 ├── scripts/
 │   └── inline-markdown.py  # folds slides.md into index.html at build time
-├── checks.nix         # `nix flake check`: both builds + the Nix linters
 └── template.nix       # lets `nix flake init -t` copy this repo (delete it in your copy if you like)
-documentation/         # the MkDocs site
-slides/                # the reveal.js deck
+dev/
+├── flake.nix          # dev-only inputs (treefmt-nix), locked in dev/flake.lock
+└── flake-module.nix   # the dev partition: formatter, checks, this repo's docs + deck
+devenv.yaml            # the dev shell (devenv CLI): the org shell from external-systems/pkgs
+documentation/
+├── flake-module.nix   # MkDocs settings + presenting.slides.dir
+├── mkdocs.yml, docs/  # the MkDocs site
+└── slides/            # the reveal.js deck
 ```
 
 This repo builds its own deck with the same module it exports — what you
 get from `inputs.presenting.flakeModules.slides` is exactly what builds
-`slides/` here.
+`documentation/slides/` here. The docs and deck live in the flake's `dev`
+[partition](https://flake.parts/options/flake-parts-partitions.html), so
+a consumer of the exports never fetches this repo's dev inputs.
 
 ## Inputs and the lock file
 
@@ -32,7 +38,8 @@ get from `inputs.presenting.flakeModules.slides` is exactly what builds
 
 | Input | What it is |
 | --- | --- |
-| `nixpkgs` | the Nix package collection (Python, alejandra, ...) |
+| `org-pkgs` | external-systems/pkgs: the org's pins; `nixpkgs`, `flake-parts` and `import-tree` follow it |
+| `nixpkgs` | the Nix package collection (Python, ...) |
 | `flake-parts` | splits the flake into small modules |
 | `import-tree` | loads every file in `flake-parts/` automatically |
 | `mkdocs-flake` | MkDocs + Material + plugins, as a flake-parts module |
@@ -42,8 +49,9 @@ get from `inputs.presenting.flakeModules.slides` is exactly what builds
 it: it is what makes the build reproducible.
 
 ```bash
-nix flake update              # move every input to its newest version
-nix flake update reveal-js    # update just one
+nix flake update reveal-js    # update one input
+nix flake update org-pkgs     # move the org pins (nixpkgs, ...), then:
+sync-locks                    # re-pin dev/flake.lock and devenv.lock to the same nixpkgs
 nix flake metadata            # show what is locked
 ```
 
@@ -76,9 +84,9 @@ module sets options inside `perSystem`, for example `packages.slides` or
 | `nix build .#slides` | the slide deck |
 | `nix run .#watch-documentation` | live docs preview |
 | `nix run .#serve-slides` | live slides preview |
-| `nix fmt .` | format `.nix` files with alejandra |
-| `nix flake check` | build both sites + lint the Nix code |
-| `nix develop` | a shell with the linters (alejandra, statix, deadnix) |
+| `nix fmt` | format and lint (treefmt: alejandra, deadnix, statix, nixf-diagnose, shellcheck, sizelint) |
+| `nix flake check` | build both sites, lint, and check the three lock files agree |
+| `devenv shell` | the dev shell: `fmt`, `check`, `docs`, `slides`, `docs-build` |
 | `nix flake show` | list all of the above |
 
 ## Exports
@@ -99,6 +107,6 @@ input or copy the build. Consumer config is one line:
 
 ## Other systems
 
-The flake builds for `x86_64-linux`. Add `"aarch64-linux"` or
-`"aarch64-darwin"` to `systems` in `flake.nix` to build on ARM Linux or
-Apple Silicon Macs.
+The flake builds for `x86_64-linux` and `aarch64-linux`. Add
+`"aarch64-darwin"` to `systems` in `flake.nix` to build on Apple Silicon
+Macs.

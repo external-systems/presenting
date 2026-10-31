@@ -7,12 +7,12 @@ repo you write the slides in Markdown and never touch JavaScript tooling.
 ## The files
 
 ```text
-slides/
+documentation/slides/
 ├── index.html   # the page: loads reveal.js, picks a theme, points at slides.md
 └── slides.md    # the slides themselves, in Markdown
 ```
 
-When you build, Nix copies `slides/`, folds `slides.md` into
+When you build, Nix copies `documentation/slides/`, folds `slides.md` into
 `index.html`, and adds reveal.js under `reveal/`:
 
 ```text
@@ -21,7 +21,7 @@ result/
 └── reveal/      # reveal.js' prebuilt dist/: reveal.js, reveal.css, theme/, plugin/
 ```
 
-You only edit `slides/`. To add images, put them in `slides/` (or a
+You only edit `documentation/slides/`. To add images, put them in `documentation/slides/` (or a
 subfolder) and `git add` them.
 
 ## Writing slides in Markdown
@@ -87,7 +87,7 @@ Chromium.
 
 ## Themes and settings
 
-Change the theme in `slides/index.html`:
+Change the theme in `documentation/slides/index.html`:
 
 ```html
 <link rel="stylesheet" href="reveal/theme/black.css" />
@@ -116,9 +116,9 @@ opens straight from disk and works on any host.
 
 `nix build .#documentation` also puts the built deck at `/slides/` of the
 website, and the [Presentation](presentation.md) page embeds it with an
-`<iframe>`. Anything you change in `slides/` shows up in both.
+`<iframe>`. Anything you change in `documentation/slides/` shows up in both.
 
 ## More than one deck
 
-Copy `index.html` to, say, `slides/talk-2.html`, point its
+Copy `index.html` to, say, `documentation/slides/talk-2.html`, point its
 `data-markdown` at `talk-2.md`, and open `/talk-2.html`.

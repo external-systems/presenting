@@ -44,12 +44,13 @@ Each command starts a small web server. Leave it running, edit files, and
 refresh the browser.
 
 ```bash
-nix run .#watch-documentation   # docs   → http://127.0.0.1:8000 (auto-reloads)
-nix run .#serve-slides          # slides → http://127.0.0.1:8000 (refresh by hand)
+nix run .#watch-documentation   # docs   → http://127.0.0.1:8981 (auto-reloads)
+nix run .#serve-slides -- 8982  # slides → http://127.0.0.1:8982 (refresh by hand)
 ```
 
-Both use port 8000, so run one at a time, or give the slides another
-port: `nix run .#serve-slides -- 8001`.
+Or run both at once in the devenv shell: `devenv up`. The docs port is
+`dev_addr` in `documentation/mkdocs.yml`; the slides take the port as an
+argument (default 8000).
 
 The first run downloads and builds the tools, which takes a few minutes.
 Later runs start in seconds.
@@ -73,8 +74,8 @@ nix build .#documentation .#slides
 ## 5. Check everything before you push
 
 ```bash
-nix fmt .           # format the .nix files
-nix flake check     # builds both sites and lints the Nix code
+nix fmt             # format and lint (treefmt)
+nix flake check     # builds both sites, lints, checks the lock files
 ```
 
 ## 6. Publish to GitHub Pages

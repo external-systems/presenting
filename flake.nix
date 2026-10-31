@@ -3,32 +3,34 @@
 
   # Every outside dependency is an input below. `flake.lock` records the
   # exact commit + content hash of each one, so every machine builds the
-  # same site. Update them with `nix flake update` (all) or
-  # `nix flake update <name>` (one).
+  # same site. Update one with `nix flake update <name>`; after
+  # `nix flake update org-pkgs`, run `sync-locks` in the same commit.
   inputs = {
-    # Nixpkgs — the package set (python, mkdocs' runtime, alejandra, ...).
-    # Pinned to a stable release branch; flake.lock holds the exact commit.
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
+    # Shared-input authority for the org: nixpkgs, flake-parts and
+    # import-tree come from the artifact flake. Named org-pkgs, never
+    # pkgs: `pkgs` is the nixpkgs package set everywhere else. Consumers
+    # override nixpkgs/flake-parts with their own pins (README).
+    org-pkgs.url = "github:external-systems/pkgs";
+    nixpkgs.follows = "org-pkgs/nixpkgs";
+    flake-parts.follows = "org-pkgs/flake-parts";
+    import-tree.follows = "org-pkgs/import-tree";
 
-    # Utility Flakes
-    flake-parts = {
-      url = "github:hercules-ci/flake-parts";
-      inputs.nixpkgs-lib.follows = "nixpkgs";
-    };
-    import-tree.url = "github:denful/import-tree";
+    # Consumer-facing inputs only; dev-only inputs go in dev/flake.nix.
 
     # Mkdocs — flake-parts module: set `documentation.mkdocs-root` and get
-    # `packages.documentation` + `apps.watch-documentation`
-    # (flake-parts/default.nix). Ships mkdocs + Material + common plugins.
+    # `packages.documentation` + `apps.watch-documentation`. Part of
+    # flakeModules.default. Ships mkdocs + Material + common plugins.
     mkdocs-flake = {
       url = "github:applicative-systems/mkdocs-flake";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.flake-parts.follows = "flake-parts";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        flake-parts.follows = "flake-parts";
+      };
     };
 
     # reveal.js — source only (not a flake). Release tags commit the
     # prebuilt `dist/` (reveal.js, themes, plugins), so the slides need
-    # zero npm: flake-parts/slides.nix copies `dist/` next to slides/.
+    # zero npm: lib.mkSlides copies `dist/` next to the deck.
     # Upgrade by bumping the tag, then `nix flake update reveal-js`.
     reveal-js = {
       url = "github:hakimel/reveal.js?ref=6.0.2";
@@ -48,19 +50,20 @@
     slidesModule = import ./flakeModules/slides.nix {inherit presentingLib;};
   in
     inputs.flake-parts.lib.mkFlake {inherit inputs;} {
-      # Add "aarch64-linux" / "aarch64-darwin" here to build on those too.
+      # Exposes debug.options / currentSystem.options, which nixd
+      # (.vscode/settings.json) reads for flake-parts option hints.
+      debug = true;
+
       systems = [
         "x86_64-linux"
+        "aarch64-linux"
       ];
 
       imports = [
-        # Every .nix file under ./flake-parts is a flake-parts module,
-        # loaded automatically — no import list to keep in sync.
+        inputs.flake-parts.flakeModules.partitions
+        # Consumer-facing modules under ./flake-parts (the template
+        # output), loaded automatically: no import list to keep in sync.
         (inputs.import-tree ./flake-parts)
-        inputs.mkdocs-flake.flakeModules.default
-        # This repo eats its own cooking: its deck is built by the same
-        # exported module consumers import.
-        slidesModule
       ];
 
       flake = {
@@ -78,6 +81,23 @@
             ];
           };
         };
+      };
+
+      # Apps, checks, the formatter and this repo's own docs and deck are
+      # evaluated only on demand; a consumer of lib, flakeModules or
+      # templates never fetches dev/flake.nix's inputs. The dev shell is
+      # devenv (devenv.yaml), not a flake output.
+      partitionedAttrs = {
+        apps = "dev";
+        checks = "dev";
+        formatter = "dev";
+        # Docs/slides: `nix build .#documentation` / `.#slides`.
+        legacyPackages = "dev";
+      };
+
+      partitions.dev = {
+        module = ./dev/flake-module.nix;
+        extraInputsFlake = ./dev;
       };
     };
 }

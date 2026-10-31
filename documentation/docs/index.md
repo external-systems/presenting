@@ -5,7 +5,7 @@ This repository builds **two static websites** from plain text files:
 | What | Source | Built with | Build command |
 | --- | --- | --- | --- |
 | This documentation site | `documentation/` | [MkDocs](https://www.mkdocs.org) + [Material](https://squidfunk.github.io/mkdocs-material/) | `nix build .#documentation` |
-| A slide deck | `slides/` | [reveal.js](https://revealjs.com) | `nix build .#slides` |
+| A slide deck | `documentation/slides/` | [reveal.js](https://revealjs.com) | `nix build .#slides` |
 
 Both builds produce a folder of HTML, CSS and JavaScript (`./result`) that
 any static host can serve: GitHub Pages, Cloudflare Pages, Netlify, an S3

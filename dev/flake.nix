@@ -1,0 +1,18 @@
+{
+  description = "Development-only inputs for presenting (the dev partition)";
+
+  # Locked in dev/flake.lock, never in the main flake.lock. dev-nixpkgs
+  # must lock the same rev as the root nixpkgs (checks.lock-sync; fix
+  # with `sync-locks`). No `presenting` input: this repo's docs use its
+  # own flakeModules (documentation/flake-module.nix).
+  inputs = {
+    dev-nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+
+    treefmt-nix = {
+      url = "github:numtide/treefmt-nix";
+      inputs.nixpkgs.follows = "dev-nixpkgs";
+    };
+  };
+
+  outputs = _: {};
+}
