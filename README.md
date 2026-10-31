@@ -27,6 +27,10 @@ nix build .#slides              # ./result = slide deck
 
 Remember to `git add` new files: Nix only sees files git tracks.
 
+Never commit build output (`result`, `_site/`, `site/`): CI builds the
+docs site, deck included, and deploys it to GitHub Pages
+(`.github/workflows/pages.yml`).
+
 The docs site this repo builds is also its tutorial: start with
 `documentation/docs/getting-started.md`, or run the preview and read it in
 the browser.

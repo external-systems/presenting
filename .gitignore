@@ -1,3 +1,6 @@
+# Build artifacts are NEVER committed. CI builds the site and deploys it
+# to GitHub Pages (.github/workflows/pages.yml); see CLAUDE.md.
+
 # nix build output links
 result
 result-*
@@ -8,3 +11,7 @@ devenv.local.nix
 
 # `mkdocs build` output, if you ever run mkdocs outside Nix
 documentation/site/
+
+# CI's copy of the built site for the Pages upload
+_site/
+site/
