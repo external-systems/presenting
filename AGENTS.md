@@ -13,6 +13,8 @@ builds its own docs and deck with the same module.
 - `dev/flake.nix` + `dev/flake.lock`: dev-only inputs. `dev/flake-module.nix`: the dev partition (formatter, checks, this repo's docs and deck).
 - `devenv.yaml` + `devenv.lock` + `devenv.nix`: the dev shell. The org shell comes from external-systems/pkgs (`org-pkgs/devenv` in devenv.yaml).
 - `documentation/`: `flake-module.nix`, MkDocs site (`mkdocs.yml`, `docs/`) and reveal.js deck (`slides/`).
+- `.github/workflows/ci.yml`: the org CI, calling external-systems/pkgs `org-ci.yml` (`nix flake check` on PRs as `ci / flake-check`; Pages deploy and `0.<minor>.<commits>` release on main). `.github/rulesets/default.json`: the org branch ruleset. Change CI only in pkgs, never here.
+- `.vscode/`: nixd settings, resolved from this flake's own inputs and `debug` options.
 
 ## Tool loop
 - The shell is devenv. If `DEVENV_ROOT` is unset, run commands with `devenv shell -- <cmd>`.
@@ -24,4 +26,5 @@ builds its own docs and deck with the same module.
 - Load the `nix-style` skill before editing any `.nix` file, and `mkdocs-reveal` before changing the exports.
 - Dev-only inputs go in `dev/flake.nix`, never `flake.nix`.
 - Never change the shape of `lib`, `flakeModules` or `templates` without updating every consumer (pkgs template, skills, secrets, not-secrets, modules, home, clanServices).
-- Work on a branch and open a PR. Never push to `main`.
+- Work on a branch and open a PR. Never push to `main`; the ruleset requires a PR with a green `ci / flake-check`.
+- Never commit build output (`result*`, `_site/`, `site/`, `documentation/site/`): docs and slides are built and deployed by CI.
