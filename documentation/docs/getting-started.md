@@ -80,10 +80,12 @@ nix flake check     # builds both sites, lints, checks the lock files
 
 ## 6. Publish to GitHub Pages
 
-The repo ships `.github/workflows/pages.yml`. On every push to `main` it
-runs `nix flake check`, builds the docs site (slides included under
-`/slides/`) and deploys it to GitHub Pages. Pull requests run the same
-checks and build without deploying.
+The repo ships `.github/workflows/ci.yml`, which calls the
+external-systems org CI (`org-ci.yml` in external-systems/pkgs). Pull
+requests run `nix flake check` (the `ci / flake-check` status). On every
+push to `main` it also builds the docs site (slides included under
+`/slides/`), deploys it to GitHub Pages and tags a `0.<minor>.<commits>`
+release.
 
 Turn it on once per repo: **Settings → Pages → Build and deployment →
 Source: GitHub Actions**. The site then appears at
