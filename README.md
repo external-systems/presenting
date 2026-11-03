@@ -29,7 +29,7 @@ Remember to `git add` new files: Nix only sees files git tracks.
 
 Never commit build output (`result`, `_site/`, `site/`): CI builds the
 docs site, deck included, and deploys it to GitHub Pages
-(`.github/workflows/pages.yml`).
+(`.github/workflows/ci.yml`, the external-systems/pkgs org CI).
 
 The docs site this repo builds is also its tutorial: start with
 `documentation/docs/getting-started.md`, or run the preview and read it in
@@ -80,7 +80,7 @@ flake-parts/       consumer-facing modules, auto-imported: the template output
 dev/               dev partition: inputs (dev/flake.lock), formatter, checks, docs
 devenv.yaml        dev shell (devenv CLI), the org shell from external-systems/pkgs
 documentation/     flake-module.nix + MkDocs site (mkdocs.yml, docs/) + slides/ deck
-.github/workflows/ pages.yml: check, build and deploy the docs site to GitHub Pages
+.github/           ci.yml (org CI: check, Pages deploy, release) + rulesets/default.json
 .vscode/           nixd (Nix language server) settings
 ```
 

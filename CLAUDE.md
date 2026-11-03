@@ -12,8 +12,9 @@ The website and deck are built in CI and published to GitHub Pages only.
 Never commit build output: no `result` / `result-*` links, no `_site/`,
 `site/` or `documentation/site/` (all gitignored), no built deck copied
 into the tree, no `gh-pages` branch pushes. To publish, merge to `main`;
-`.github/workflows/pages.yml` runs `nix flake check`, builds
-`.#documentation` (deck at `/slides/`) and deploys it.
+`.github/workflows/ci.yml` calls the org CI (external-systems/pkgs
+`org-ci.yml`): it runs `nix flake check`, builds `.#documentation` (deck
+at `/slides/`) and deploys it. Change CI only in pkgs, never here.
 
 ## Build and check
 
